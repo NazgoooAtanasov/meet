@@ -8,9 +8,20 @@ datasource db {
 }
 
 model User {
-    id              String @id @default(uuid())
+    id              String          @id @default(uuid())
     firstName       String
     lastName        String
-    email           String @unique
+    email           String          @unique
     hashedPassword  String
+
+    locations       Coordinates[]
+}
+
+model Coordinates {
+    id          String  @id @default(uuid())
+    longitude   Float
+    latitude    Float
+
+    user        User    @relation(fields: [userId], references: [id])
+    userId      String
 }

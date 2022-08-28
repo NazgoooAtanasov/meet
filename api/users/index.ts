@@ -49,4 +49,55 @@ users.post('/users', async (req: Request, res: Response) => {
     }
 });
 
+users.get('/users/:id/locations', async (req: Request, res: Response) => {
+    const userId: string = req.params.id;
+
+    try {
+        const coordinates = await (
+            res.locals.prisma as PrismaClient
+        ).coordinates.findMany({
+            where: {
+                userId,
+            },
+        });
+
+        return res.status(200).json(coordinates);
+    } catch (err: any) {
+        return res.status(400).json({ errorFields: err.meta?.target });
+    }
+});
+
+users.post('/users/:id/locations', async (req: Request, res: Response) => {
+    const userId: string = req.params.id;
+    const coordinates = req.body;
+
+    try {
+        const user = await (res.locals.prisma as PrismaClient).user.findFirst({
+            where: { id: userId },
+        });
+
+        if (user) {
+            await (res.locals.prisma as PrismaClient).user.update({
+                where: { id: userId },
+                data: {
+                    locations: {
+                        create: coordinates,
+                    },
+                },
+                include: {
+                    locations: true,
+                },
+            });
+
+            return res.status(201).json({});
+        }
+
+        return res
+            .status(400)
+            .json({ errorMessage: 'User with that ID does not exits' });
+    } catch (err: any) {
+        return res.status(400).json({ errorFields: err.meta?.target });
+    }
+});
+
 export default users;
