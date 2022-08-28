@@ -7,7 +7,7 @@
     "build": "tsc && npx prisma migrate deploy",
     "dev": "tsc && node out/index.js"
   },
-  "engine": {
+  "engines": {
     "node": "16.17.0",
     "npm": "8.15.0"
   },
