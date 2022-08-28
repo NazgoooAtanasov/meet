@@ -41,8 +41,8 @@ model Events {
 
 model UserEvents {
     id      String  @id @default(uuid())
-    users   User    @relation(fields: [userId], references: [id])
-    events  Events  @relation(fields: [eventId], references: [id])
+    user   User    @relation(fields: [userId], references: [id])
+    event  Events  @relation(fields: [eventId], references: [id])
 
     userId  String
     eventId String

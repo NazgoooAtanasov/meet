@@ -26,7 +26,7 @@ events.get('/events/:id', async (req: Request, res: Response) => {
             include: {
                 users: {
                     include: {
-                        users: {
+                        user: {
                             select: {
                                 firstName: true,
                                 lastName: true,
