@@ -4,9 +4,12 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
+    "build": "tsc && npx prisma migrate deploy",
     "dev": "tsc && node out/index.js"
+  },
+  "engine": {
+    "node": "16.17.0",
+    "npm": "8.15.0"
   },
   "author": "",
   "license": "ISC",
