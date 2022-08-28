@@ -24,7 +24,7 @@ const context = (req: Request, res: Response, next: NextFunction) => {
             process.env.JWT_SECRET!
         );
 
-        res.locals.userId = decodedToken.userId;
+        res.locals.userId = decodedToken.data.userId;
     }
 
     next();

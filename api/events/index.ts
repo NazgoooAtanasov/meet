@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import express, { Request, Response } from 'express';
+import { assureAuth } from '../../middlewares';
 
 const events = express.Router();
 
@@ -45,8 +46,8 @@ events.get('/events/:id', async (req: Request, res: Response) => {
 });
 
 // this should be available only if logged in
-events.post('/events', async (req: Request, res: Response) => {
-    const { title, description, userId } = req.body;
+events.post('/events', assureAuth, async (req: Request, res: Response) => {
+    const { title, description } = req.body;
 
     try {
         const event = await (res.locals.prisma as PrismaClient).events.create({
@@ -54,7 +55,7 @@ events.post('/events', async (req: Request, res: Response) => {
                 title,
                 description,
                 user: {
-                    connect: { id: userId },
+                    connect: { id: res.locals.userId },
                 },
             },
         });
@@ -62,7 +63,7 @@ events.post('/events', async (req: Request, res: Response) => {
         // adding the creator of the event to the events participants.
         await (res.locals.prisma as PrismaClient).userEvents.create({
             data: {
-                userId: userId,
+                userId: res.locals.userId,
                 eventId: event.id,
             },
         });
