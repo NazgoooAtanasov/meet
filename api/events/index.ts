@@ -1,6 +1,11 @@
 import { PrismaClient } from '@prisma/client';
 import express, { Request, Response } from 'express';
 import { assureAuth } from '../../middlewares';
+import {
+    defaultTextField,
+    emailSchema,
+    validateFormatter,
+} from '../../schemas';
 
 const events = express.Router();
 
@@ -45,9 +50,19 @@ events.get('/events/:id', async (req: Request, res: Response) => {
     }
 });
 
-// this should be available only if logged in
 events.post('/events', assureAuth, async (req: Request, res: Response) => {
     const { title, description } = req.body;
+
+    const validations = [
+        { name: 'Title', validation: defaultTextField.safeParse(title) },
+        {
+            name: 'Description',
+            validation: defaultTextField.safeParse(description),
+        },
+    ].reduce(validateFormatter, [] as { name: string; errors: string }[]);
+
+    if (validations.length)
+        return res.status(400).json({ errorMessages: validations });
 
     try {
         const event = await (res.locals.prisma as PrismaClient).events.create({
@@ -78,6 +93,13 @@ events.post('/events', assureAuth, async (req: Request, res: Response) => {
 events.post('/events/:id/invite', async (req: Request, res: Response) => {
     const eventId = req.params.id;
     const { email } = req.body;
+
+    const validations = [
+        { name: 'Email', validation: emailSchema.safeParse(email) },
+    ].reduce(validateFormatter, [] as { name: string; errors: string }[]);
+
+    if (validations.length)
+        return res.status(400).json({ errorMessages: validations });
 
     try {
         const user = await (res.locals.prisma as PrismaClient).user.findFirst({

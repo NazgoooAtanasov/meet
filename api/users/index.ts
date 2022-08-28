@@ -1,7 +1,12 @@
 import bcrypt from 'bcrypt';
 import { PrismaClient } from '@prisma/client';
 import express, { Request, Response } from 'express';
-import { defaultTextField, emailSchema, passwordSchema } from '../../schemas';
+import {
+    defaultTextField,
+    emailSchema,
+    passwordSchema,
+    validateFormatter,
+} from '../../schemas';
 const users = express.Router();
 
 users.get('/users/:id', async (req: Request, res: Response) => {
@@ -37,21 +42,10 @@ users.post('/users', async (req: Request, res: Response) => {
         { name: 'Last name', validation: defaultTextField.safeParse(lastName) },
         { name: 'Email', validation: emailSchema.safeParse(email) },
         { name: 'Password', validation: passwordSchema.safeParse(password) },
-    ].reduce((accumulator, current) => {
-        if (!current.validation.success) {
-            const errors = current.validation.error.format()._errors.join(' ');
-            accumulator.push({
-                name: current.name,
-                errors,
-            });
-        }
+    ].reduce(validateFormatter, [] as { name: string; errors: string }[]);
 
-        return accumulator;
-    }, [] as { name: string; errors: string }[]);
-
-    if (validations.length) {
+    if (validations.length)
         return res.status(400).json({ errorMessages: validations });
-    }
 
     const emailUsed = await (res.locals.prisma as PrismaClient).user.findFirst({
         where: { email },

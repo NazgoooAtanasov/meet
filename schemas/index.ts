@@ -13,3 +13,18 @@ export const passwordSchema = z
     .string()
     .trim()
     .min(8, { message: 'The password should be at least 8 characters long.' });
+
+export const validateFormatter = (
+    accumulator: { name: string; errors: string }[],
+    current: { name: string; validation: any }
+) => {
+    if (!current.validation.success) {
+        const errors = current.validation.error.format()._errors.join(' ');
+        accumulator.push({
+            name: current.name,
+            errors,
+        });
+    }
+
+    return accumulator;
+};
