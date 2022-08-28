@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import { PrismaClient } from '@prisma/client';
 import express, { Request, Response } from 'express';
 const users = express.Router();
@@ -25,10 +26,10 @@ users.get('/users/:id', async (req: Request, res: Response) => {
 });
 
 users.post('/users', async (req: Request, res: Response) => {
-    const body = req.body;
+    const { firstName, lastName, email, password } = req.body;
 
     const emailUsed = await (res.locals.prisma as PrismaClient).user.findFirst({
-        where: { email: body.email },
+        where: { email },
     });
 
     if (emailUsed) {
@@ -39,8 +40,11 @@ users.post('/users', async (req: Request, res: Response) => {
     }
 
     try {
+        // @TODO: `10` is some kind of number, idk what it is. should be researched.
+        const hashedPassword: string = await bcrypt.hash(password, 10);
+
         const user = await res.locals.prisma.user.create({
-            data: { ...body },
+            data: { firstName, lastName, email, hashedPassword },
         });
 
         return res.status(201).json({ id: user?.id });
