@@ -74,4 +74,31 @@ events.post('/events', async (req: Request, res: Response) => {
     }
 });
 
+events.post('/events/:id/invite', async (req: Request, res: Response) => {
+    const eventId = req.params.id;
+    const { email } = req.body;
+
+    try {
+        const user = await (res.locals.prisma as PrismaClient).user.findFirst({
+            where: { email },
+        });
+
+        if (!user)
+            return res
+                .status(400)
+                .json({ errorMessage: 'User with that email does not exist' });
+
+        await (res.locals.prisma as PrismaClient).userEvents.create({
+            data: {
+                eventId: eventId,
+                userId: user.id,
+            },
+        });
+
+        return res.status(201).json({});
+    } catch (err: any) {
+        return res.status(400).json({ errorFields: err.meta?.target });
+    }
+});
+
 export default events;
