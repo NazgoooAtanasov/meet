@@ -1,6 +1,6 @@
-defmodule MeetChatWeb.MessagesSocket do
+defmodule MeetChatWeb.EventsSocket do
   use Phoenix.Socket
-  channel "event:*", MeetChatWeb.EventChannel
+  channel "chat:*", MeetChatWeb.MessageChannel
 
   @impl true
   def connect(_params, socket, _connect_info) do

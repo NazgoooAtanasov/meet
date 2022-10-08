@@ -12,7 +12,7 @@ defmodule MeetChatWeb.Endpoint do
 
   socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
 
-  socket "/messages", MeetChatWeb.MessagesSocket, websocket: true, longpoll: false
+  socket "/events", MeetChatWeb.EventsSocket, websocket: true, longpoll: false
 
   # Serve at "/" the static files from "priv/static" directory.
   #
