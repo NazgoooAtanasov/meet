@@ -72,6 +72,7 @@ events.post('/events', assureAuth, async (req: Request, res: Response) => {
                 user: {
                     connect: { id: res.locals.userId },
                 },
+                chat: {},
             },
         });
 
@@ -80,6 +81,13 @@ events.post('/events', assureAuth, async (req: Request, res: Response) => {
             data: {
                 userId: res.locals.userId,
                 eventId: event.id,
+            },
+        });
+
+        // creates a chat entry for the event.
+        await (res.locals.prisma as PrismaClient).chat.create({
+            data: {
+                event: { connect: { id: event.id } },
             },
         });
 
